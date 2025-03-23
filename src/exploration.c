@@ -9,13 +9,6 @@ int gotMysticHerb = 0;
 // Declare a persistent player instance.
 Player mainPlayer;
 
-int choose_direction_for_area(int area);
-int is_correct_direction(int area, int direction);
-void bandit_camp_encounter();
-void dark_forest_encounter();
-void obtain_relics();
-void old_sage_tower();
-
 void start_game() {
     // Start game initialization and launch overworld exploration
     printf("Starting game...\n");
