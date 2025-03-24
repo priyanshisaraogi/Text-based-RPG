@@ -13,4 +13,4 @@ void init_player(Player *player);
 void display_stats(const Player *player);
 void gain_exp(Player *player, int exp_gain);
 
-#endif // PLAYER_H
+#endif /* PLAYER_H */
