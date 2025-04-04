@@ -20,12 +20,6 @@ void dark_forest_encounter(void);
 void obtain_relics(void);
 void old_sage_tower(void);
 
-int main(void) {
-    /* Start the game/quest. */
-    start_game();
-    return 0;
-}
-
 void start_game(void) {
     /* Initialize mainPlayer with starting stats */
     init_player(&mainPlayer);
