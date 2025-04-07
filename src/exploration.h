@@ -3,6 +3,7 @@
 
 /* Function prototypes */
 void start_game(void);
+void print_backstory(void);
 void overworld_exploration(void);
 int handle_fork_path(void);
 int choose_direction_for_area(int area);

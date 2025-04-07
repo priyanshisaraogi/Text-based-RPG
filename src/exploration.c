@@ -1,6 +1,7 @@
 #include "exploration.h"
 #include "player.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 /* Global inventory flags */
 int gotMapFragment, gotMysticHerb;
@@ -9,17 +10,6 @@ int towerEntered = 0;
 /* Declare a persistent player instance. */
 Player mainPlayer;
 
-/* Function prototypes */
-void start_game(void);
-void overworld_exploration(void);
-int handle_fork_path(void);
-int choose_direction_for_area(int area);
-int is_correct_direction(int area, int direction);
-void bandit_camp_encounter(void);
-void dark_forest_encounter(void);
-void obtain_relics(void);
-void old_sage_tower(void);
-
 void start_game(void) {
     /* Initialize mainPlayer with starting stats */
     init_player(&mainPlayer);
@@ -27,17 +17,66 @@ void start_game(void) {
     gotMapFragment = 0;
     gotMysticHerb = 0;
     printf("Starting game...\n");
+    print_backstory();
+}
+
+/* Wait for the player to press the enter key before continuing */
+void wait_for_enter(void) {
+    int c;
+    /* printf("Press Enter to continue..."); */
+    /* Wait until the enter key (newline) is received */
+    while ((c = getchar()) != '\n') {
+        /* Do nothing, just consume extra characters if any */
+    }
+}
+
+/* Print a line then pause for user input */
+void print_pause(const char *line) {
+    printf("\n%s\n", line);
+    wait_for_enter();
+}
+
+void print_backstory(void) {
+    printf("\n--------------------------------------------------\n");
+    print_pause("In the shadowed lands of Yharnam, a dark lord terrorizes the realm.");
+    print_pause("Chosen by the gods, you are the beacon of hope destined to stop him.");
+    print_pause("Leaving your humble village behind, you venture into the overworld, a confusing and perilous place where few have dared to tread.");
+    print_pause("Your quest is to navigate these mysterious paths and collect two sacred relics:");
+    print_pause("The map fragment,");
+    print_pause("and the mystic herb.");
+    print_pause("Only by possessing these can you unlock the ancient gates of the Old Sage Tower, your gateway to confronting the dark lord and bringing light back to Yharnam.");
+    printf("Prepare well, for without these relics, you shall be ill prepared to face the dark lord.\n");
+    printf("\n--------------------------------------------------\n");
     overworld_exploration();
+}
+
+/* Helper function: returns a valid integer from the user */
+int get_int_input(const char *prompt) {
+    int choice;
+    char input[128];
+    char *endptr;
+    while (1) {
+        printf("%s", prompt);
+        if (fgets(input, sizeof(input), stdin) != NULL) {
+            choice = strtol(input, &endptr, 10);
+            if (endptr == input || (*endptr != '\n' && *endptr != '\0')) {
+                printf("Wrong input, please choose a numeric value.\n");
+                continue;
+            }
+            return choice;
+        } else {
+            printf("Input error, please try again.\n");
+        }
+    }
 }
 
 void overworld_exploration(void) {
     int area;
-    printf("You are in the overworld. Your journey begins...\n");
+    printf("\nYou have entered the overworld. Your journey begins...\n");
     
     for (area = 1; area <= 5; area++) {
         int direction;
         printf("\n--- Area %d ---\n", area);
-        printf("Choose your path: 1 for Left, 2 for Right, 3 for Straight: ");
         direction = choose_direction_for_area(area);
         
         if (!is_correct_direction(area, direction)) {
@@ -56,7 +95,6 @@ void overworld_exploration(void) {
         if (path_choice == 1) {
             /* Logic for heading to the Dark Forest */
             printf("You venture into the Dark Forest...\n");
-            /* ...Add Dark Forest logic here... */
             dark_forest_encounter();
         } else if (path_choice == 2) {
             /* Logic for heading to the Bandit Camp */
@@ -67,23 +105,40 @@ void overworld_exploration(void) {
 }
 
 int handle_fork_path(void) {
-    int choice = 0;
-    do {
+    int choice = 0;               
+    char input[128];
+    char *endptr = NULL;          
+    while (1) {
         printf("\n--- Forked Path ---\n");
         printf("Choose your path: 1 for Dark Forest, 2 for Bandit Camp: ");
-        scanf("%d", &choice);
-        if (choice != 1 && choice != 2) {
-            printf("Invalid choice. Please try again.\n");
+        if (fgets(input, sizeof(input), stdin) != NULL) {
+            choice = strtol(input, &endptr, 10);
+            /* Check if input is invalid or extra characters exist. */
+            if (endptr == input || (*endptr != '\n' && *endptr != '\0')) {
+                printf("Wrong input, please choose again.\n");
+                continue;
+            }
+            if (choice != 1 && choice != 2) {
+                printf("Wrong input, please choose again.\n");
+                continue;
+            }
+            return choice;
+        } else {
+            printf("Input error, please try again.\n");
         }
-    } while (choice != 1 && choice != 2);
-    
-    return choice;
+    }
 }
 
 int choose_direction_for_area(int area) {
-    int choice = 0;
-    scanf("%d", &choice);
-    return choice;
+    int choice;
+    while (1) {
+        choice = get_int_input("Choose your path: 1 for Left, 2 for Right, 3 for Straight: ");
+        if (choice != 1 && choice != 2 && choice != 3) {
+            printf("Wrong input, please choose 1, 2, or 3.\n");
+            continue;
+        }
+        return choice;
+    }
 }
 
 int is_correct_direction(int area, int direction) {
@@ -108,16 +163,17 @@ int is_correct_direction(int area, int direction) {
 
 void bandit_camp_encounter(void) {
     int choice = 0;
-    do {
+    while (1) {
         printf("\nAt the Bandit Camp your mission is to retrieve the map fragment. You have two options:\n");
         printf("1. Fight head-on with honour for glory\n");
         printf("2. Use stealth like a craven\n");
-        printf("Enter your choice: ");
-        scanf("%d", &choice);
-        if (choice != 1 && choice != 2) {
+        choice = get_int_input("Enter your choice: ");
+        if (choice == 1 || choice == 2) {
+            break;
+        } else {
             printf("Invalid choice. Please try again.\n");
         }
-    } while (choice != 1 && choice != 2);
+    }
     
     if (choice == 2) {
         printf("You chose stealth: Successful stealth! You obtain the map fragment from the bandits.\n");
@@ -145,17 +201,18 @@ void bandit_camp_encounter(void) {
 
 void dark_forest_encounter(void) {
     int choice = 0;
-    do {
+    while (1) {
         printf("\nAt the Dark Forest, a ferocious beast guards the mystic herb.\n");
         printf("Choose your approach:\n");
         printf("1. Fight the beast\n");
         printf("2. Attempt to flee\n");
-        printf("Enter your choice: ");
-        scanf("%d", &choice);
-        if (choice != 1 && choice != 2) {
+        choice = get_int_input("\nEnter your choice: ");
+        if (choice == 1 || choice == 2) {
+            break;
+        } else {
             printf("Invalid choice. Please try again.\n");
         }
-    } while (choice != 1 && choice != 2);
+    }
     
     if (choice == 2) {
         printf("\nYou attempt to flee, but the beast chases you down!\n");
@@ -185,22 +242,23 @@ void dark_forest_encounter(void) {
             printf("Choose your attack:\n");
             printf("1. Powerful strike (deals %d damage)\n", mainPlayer.attack);
             printf("2. Normal strike (deals %d damage)\n", mainPlayer.attack / 2);
-            printf("Enter your choice: ");
-            scanf("%d", &attackChoice);
+            attackChoice = get_int_input("Enter your choice: ");
             
             if (attackChoice == 1) {
                 printf("You use a powerful strike!\n");
                 beastHealth -= mainPlayer.attack;
-            } else {
+            } else if (attackChoice == 2) {
                 printf("You use a normal strike.\n");
                 beastHealth -= mainPlayer.attack / 2;
+            } else {
+                printf("Invalid choice. Please try again.\n");
+                continue;
             }
             
             if (beastHealth <= 0) {
                 break;
             }
             
-            /* Beast's turn: calculate damage factoring in player's defense. */
             damage = beastAttack - mainPlayer.defense;
             if (damage < 0) {
                 damage = 0;
@@ -216,18 +274,15 @@ void dark_forest_encounter(void) {
         if (mainPlayer.health <= 0) {
             printf("\nYou have been slain by the beast.\n");
             printf("Respawning back to the village...\n");
-            /* Lose all EXP and quest items on death. */
             mainPlayer.exp = 0;
             gotMapFragment = 0;
             gotMysticHerb = 0;
             start_game();
         } else {
             printf("\nYou have defeated the beast!\n");
-            /* Award EXP (which may level up the player) */
             gain_exp(&mainPlayer, 50);
             printf("You obtain the mystic herb from the Dark Forest.\n");
             gotMysticHerb = 1;
-            /* Check if both relics are acquired. */
             if (gotMapFragment && gotMysticHerb) {
                 old_sage_tower();
             } else { 
