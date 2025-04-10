@@ -1,6 +1,8 @@
 #include "player.h"
 #include <stdio.h>
 
+#define BASE_HEALTH 100 
+
 void init_player(Player *player) {
     player->health = 100;
     player->attack = 10;
@@ -39,9 +41,15 @@ void gain_exp(Player *player, int exp_gain) {
     while (player->exp >= 100) {
         player->exp -= 100;
         player->level++;
-        player->health += player->health / 2;   /* increase by 50% */
-        player->attack += player->attack / 2;   /* increase by 50% */
-        player->defense += player->defense / 2; /* increase by 50% */
+        /* 
+           Reset health to BASE_HEALTH and then increase by 50% of BASE_HEALTH for each level above 1.
+           So for level 2: health = BASE_HEALTH + (BASE_HEALTH/2)
+           For level 3: health = BASE_HEALTH + 2*(BASE_HEALTH/2), etc.
+        */
+        player->health = BASE_HEALTH + ((player->level - 1) * (BASE_HEALTH / 2));
+        /* We continue to increase attack and defense in the old way or you can apply similar logic if desired */
+        player->attack += player->attack / 2;
+        player->defense += player->defense / 2;
         printf("\n*** LEVEL UP! You are now level %d! ***\n", player->level);
         display_stats(player);
     }
