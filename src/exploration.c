@@ -3,19 +3,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-/* Global inventory flags */
-int gotMapFragment, gotMysticHerb;
+/* Global flag for tower entry - relic flags now reside in mainPlayer */
 int towerEntered = 0;
 
 /* Declare a persistent player instance. */
 Player mainPlayer;
 
 void start_game(void) {
-    /* Initialize mainPlayer with starting stats */
+    /* Initialize mainPlayer with starting stats (and relic flags are set in init_player) */
     init_player(&mainPlayer);
-    /* Reset quest-related flags if needed */
-    gotMapFragment = 0;
-    gotMysticHerb = 0;
     printf("Starting game...\n");
     print_backstory();
 }
@@ -23,10 +19,8 @@ void start_game(void) {
 /* Wait for the player to press the enter key before continuing */
 void wait_for_enter(void) {
     int c;
-    /* printf("Press Enter to continue..."); */
-    /* Wait until the enter key (newline) is received */
     while ((c = getchar()) != '\n') {
-        /* Do nothing, just consume extra characters if any */
+        /* Consume extra characters */
     }
 }
 
@@ -93,11 +87,9 @@ void overworld_exploration(void) {
         path_choice = handle_fork_path();
     
         if (path_choice == 1) {
-            /* Logic for heading to the Dark Forest */
             printf("You venture into the Dark Forest...\n");
             dark_forest_encounter();
         } else if (path_choice == 2) {
-            /* Logic for heading to the Bandit Camp */
             printf("You head towards the Bandit Camp...\n");
             bandit_camp_encounter();
         } 
@@ -113,7 +105,6 @@ int handle_fork_path(void) {
         printf("Choose your path: 1 for Dark Forest, 2 for Bandit Camp: ");
         if (fgets(input, sizeof(input), stdin) != NULL) {
             choice = strtol(input, &endptr, 10);
-            /* Check if input is invalid or extra characters exist. */
             if (endptr == input || (*endptr != '\n' && *endptr != '\0')) {
                 printf("Wrong input, please choose again.\n");
                 continue;
@@ -164,7 +155,8 @@ int is_correct_direction(int area, int direction) {
 void bandit_camp_encounter(void) {
     int choice = 0;
     while (1) {
-        printf("\nAt the Bandit Camp your mission is to retrieve the map fragment. You have two options:\n");
+        printf("\nAt the Bandit Camp, your mission is to retrieve the map fragment.\n");
+        printf("You have two options:\n");
         printf("1. Fight head-on with honour for glory\n");
         printf("2. Use stealth like a craven\n");
         choice = get_int_input("Enter your choice: ");
@@ -177,11 +169,9 @@ void bandit_camp_encounter(void) {
     
     if (choice == 2) {
         printf("You chose stealth: Successful stealth! You obtain the map fragment from the bandits.\n");
-        gotMapFragment = 1;
-        /* Award 50 EXP for successful stealth. */
+        mainPlayer.has_map_fragment = 1;
         gain_exp(&mainPlayer, 50);
-        /* Check if both relics are acquired */
-        if (gotMapFragment && gotMysticHerb) {
+        if (mainPlayer.has_map_fragment && mainPlayer.has_mystic_herb) {
             old_sage_tower();
         } else {
             printf("You haven't gathered all required relics yet. Returning to the forked path.\n");
@@ -191,10 +181,9 @@ void bandit_camp_encounter(void) {
         printf("You chose to fight head-on, but it was a trap!\n");
         printf("Overwhelmed by the bandits, you are thrown into their own jail.\n");
         printf("You fortunately manage to escape, but you lose all quest items and all experience.\n");
-        /* Lose all EXP and quest items. */
         mainPlayer.exp = 0;
-        gotMapFragment = 0;
-        gotMysticHerb = 0;
+        mainPlayer.has_map_fragment = 0;
+        mainPlayer.has_mystic_herb = 0;
         start_game();
     }
 }
@@ -218,15 +207,13 @@ void dark_forest_encounter(void) {
         printf("\nYou attempt to flee, but the beast chases you down!\n");
         printf("You have died while trying to escape...\n");
         printf("Respawning back to the village...\n");
-        /* Player loses all EXP and quest items when fleeing */
         mainPlayer.exp = 0;
-        gotMapFragment = 0;
-        gotMysticHerb = 0;
+        mainPlayer.has_map_fragment = 0;
+        mainPlayer.has_mystic_herb = 0;
         start_game();
         return;
     }
     
-    /* Variables for battle must be declared at the top of the block. */
     {
         int beastHealth = 60; /* Beast's starting health */
         int beastAttack = 15; /* Beast's attack value */
@@ -275,15 +262,15 @@ void dark_forest_encounter(void) {
             printf("\nYou have been slain by the beast.\n");
             printf("Respawning back to the village...\n");
             mainPlayer.exp = 0;
-            gotMapFragment = 0;
-            gotMysticHerb = 0;
+            mainPlayer.has_map_fragment = 0;
+            mainPlayer.has_mystic_herb = 0;
             start_game();
         } else {
             printf("\nYou have defeated the beast!\n");
             gain_exp(&mainPlayer, 50);
             printf("You obtain the mystic herb from the Dark Forest.\n");
-            gotMysticHerb = 1;
-            if (gotMapFragment && gotMysticHerb) {
+            mainPlayer.has_mystic_herb = 1;
+            if (mainPlayer.has_map_fragment && mainPlayer.has_mystic_herb) {
                 old_sage_tower();
             } else { 
                 printf("You haven't gathered all required relics yet. Returning to the forked path.\n");
@@ -294,26 +281,23 @@ void dark_forest_encounter(void) {
 }
 
 void obtain_relics(void) {
-    while (!(gotMapFragment && gotMysticHerb)) {
-        if (!gotMapFragment)
+    while (!(mainPlayer.has_map_fragment && mainPlayer.has_mystic_herb)) {
+        if (!mainPlayer.has_map_fragment)
             printf(" - You need the map fragment from the Bandit Camp.\n");
-        if (!gotMysticHerb)
+        if (!mainPlayer.has_mystic_herb)
             printf(" - You need the mystic herb from the Dark Forest.\n");
         
         {
-            int path_choice;
-            path_choice = handle_fork_path();
+            int path_choice = handle_fork_path();
             
             if (path_choice == 1) {
-                /* Dark Forest branch */
-                if (!gotMysticHerb) {
+                if (!mainPlayer.has_mystic_herb) {
                     dark_forest_encounter();
                 } else {
                     printf("You already have the mystic herb. Returning to the forked path.\n");
                 }
             } else if (path_choice == 2) {
-                /* Bandit Camp branch */
-                if (!gotMapFragment) {
+                if (!mainPlayer.has_map_fragment) {
                     bandit_camp_encounter();
                 } else {
                     printf("You already have the map fragment. Returning to the forked path.\n");
@@ -321,13 +305,12 @@ void obtain_relics(void) {
             }
         }
     }
-    /* When both relics are acquired, proceed to the Old Sage Tower. */
     old_sage_tower();
 }
 
 void old_sage_tower(void) {
     if (towerEntered) {
-        return;  /* Tower already entered; do nothing */
+        return;  /* Tower already entered */
     }
     towerEntered = 1;
     

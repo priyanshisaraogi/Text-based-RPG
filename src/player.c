@@ -39,9 +39,9 @@ void gain_exp(Player *player, int exp_gain) {
     while (player->exp >= 100) {
         player->exp -= 100;
         player->level++;
-        player->health += player->health / 2;   // increase by 50%
-        player->attack += player->attack / 2;   // increase by 50%
-        player->defense += player->defense / 2; // increase by 50%
+        player->health += player->health / 2;   /* increase by 50% */
+        player->attack += player->attack / 2;   /* increase by 50% */
+        player->defense += player->defense / 2; /* increase by 50% */
         printf("\n*** LEVEL UP! You are now level %d! ***\n", player->level);
         display_stats(player);
     }
