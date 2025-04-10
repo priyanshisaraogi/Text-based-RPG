@@ -1,5 +1,6 @@
 #include "exploration.h"
 #include "player.h"
+#include "quests.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -36,8 +37,8 @@ void print_backstory(void) {
     print_pause("Chosen by the gods, you are the beacon of hope destined to stop him.");
     print_pause("Leaving your humble village behind, you venture into the overworld, a confusing and perilous place where few have dared to tread.");
     print_pause("Your quest is to navigate these mysterious paths and collect two sacred relics:");
-    print_pause("The map fragment,");
-    print_pause("and the mystic herb.");
+    print_pause(" - The map fragment,");
+    print_pause(" - and the mystic herb.");
     print_pause("Only by possessing these can you unlock the ancient gates of the Old Sage Tower, your gateway to confronting the dark lord and bringing light back to Yharnam.");
     printf("Prepare well, for without these relics, you shall be ill prepared to face the dark lord.\n");
     printf("\n--------------------------------------------------\n");
@@ -322,6 +323,6 @@ void old_sage_tower(void) {
     towerEntered = 1;
     
     print_pause("You approach the Old Sage Tower.");
-    print_pause("With both the map fragment and the mystic herb in hand, the ancient door opens for you.");
-    print_pause("Your quest continues...");
+    print_pause("With both the map fragment and the mystic herb in hand, the ancient door opens for you...");
+    run_quests(&mainPlayer);
 }
