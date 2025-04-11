@@ -37,7 +37,6 @@ void enter_old_sage_tower(Player *player)
     
     print_pause("Puzzle solved! You learn the location of the crystals.");
     gain_exp(player, 50);
-    print_pause("You start heading upstairs towards the first crystal: The Fire Crystal.");
     collect_crystals(player);
 }
 
@@ -79,7 +78,7 @@ void combat_volcano_dungeon(Player *player)
     int attackChoice = 0;
     int damage = 0;
     
-    print_pause("\nBattle begins!");
+    print_pause("Battle begins!");
     printf("Your HP: %d\n", player->health);
     printf("Lava Beast HP: %d\n", beastHealth);
     
@@ -173,7 +172,7 @@ void collect_crystals(Player *player)
     int room_choice = 0;
     int result;
     
-    print_pause("You explore the old sage tower with the clues in mind.");
+    print_pause("You start to explore the old sage tower with the clues in mind.");
     
     while (!(player->has_fire_crystal && player->has_ice_crystal && player->has_shadow_crystal))
     {
@@ -283,17 +282,60 @@ void collect_crystals(Player *player)
         }
     }
     
-    print_pause("You now have all 3 crystals in your inventory!");
     craft_master_sword(player);
+}
+
+void traverse_maze(void)
+{
+    int correct[3] = {1, 2, 1};  /* The correct sequence for the 3 steps */
+    int step, choice, result;
+    
+    while (1) {  /* Outer loop: repeated until the full maze is passed */
+        for (step = 0; step < 3; step++) {
+            while (1) {  /* Inner loop: repeat until valid input (1 or 2) is entered */
+                printf("Step %d: Choose your path (1 for Left, or 2 for Right): ", step + 1);
+                result = scanf("%d", &choice);
+                while(getchar() != '\n');  /* Clear input buffer */
+                
+                if (result != 1 || (choice != 1 && choice != 2)) {
+                    printf("Invalid input. Please enter 1 or 2.\n");
+                    continue;
+                }
+                
+                if (choice != correct[step]) {
+                    print_pause("Wrong choice! You have been forced back to the maze entrance.");
+                    goto restart_maze;
+                } else {  /* Correct choice: give extra narrative */
+                    if (step == 0) {
+                        print_pause("You turn left and discover a narrow passage where the walls glisten faintly.");
+                    } else if (step == 1) {
+                        print_pause("You choose the right path and notice ancient symbols carved along the corridor.");
+                    } else if (step == 2) {
+                        print_pause("Finally, you turn left again and the passage opens into a secret chamber.");
+                    }
+                    print_pause("Correct choice!");
+                    break;  /* Move to next step */
+                }
+            }
+        }
+        break; /* Maze completed successfully */
+        
+restart_maze:
+        print_pause("Restarting the maze from the beginning...");
+    }
+    print_pause("After a tense journey through twisting corridors, you finally uncover a hidden chamber glowing with Rare Ore!");
 }
 
 void craft_master_sword(Player *player)
 {
     print_pause("With all 3 Crystals of Power, you head below the basement of the Old Sage Tower, towards the mines.");
-    print_pause("You must find a Rare Ore to craft the Master Sword.\n");
-    printf("You venture into a dangerous mine and retrieve the ore!\n");
+    print_pause("You must find a Rare Ore to craft the Master Sword.");
+    print_pause("You venture into the mines and face a maze of twisting corridors...");
+    traverse_maze();
     player->has_rare_ore = 1;
-
+    print_pause("After finding the Rare Ore, you leave the mines and travel back to the ground floor, where a forge awaits you.");
+    print_pause("You place the 3 Crystals of Power and the Rare Ore into the forge. The forge roars to life, and the air crackles with energy.");
+    print_pause("With your skills as a blacksmith's apprentice, you begin crafting the Master Sword.");
     if (player->has_rare_ore)
     {
         print_pause("Crafting Master Sword...");

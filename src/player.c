@@ -37,7 +37,7 @@ void display_stats(const Player *player) {
 
 void gain_exp(Player *player, int exp_gain) {
     player->exp += exp_gain;
-    printf("\nYou gained %d EXP. Total EXP is now %d.\n", exp_gain, player->exp);
+    printf("You gained %d EXP. Total EXP is now %d.\n", exp_gain, player->exp);
     while (player->exp >= player->level * 100) {
         int threshold = player->level * 100;
         player->exp -= threshold;
