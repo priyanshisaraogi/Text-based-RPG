@@ -1,6 +1,7 @@
 #include "exploration.h"
 #include "player.h"
 #include "quests.h"
+#include "common.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -17,20 +18,6 @@ void start_game(void) {
     print_backstory();
 }
 
-/* Wait for the player to press the enter key before continuing */
-void wait_for_enter(void) {
-    int c;
-    while ((c = getchar()) != '\n') {
-        /* Consume extra characters */
-    }
-}
-
-/* Print a line then pause for user input */
-void print_pause(const char *line) {
-    printf("\n%s\n", line);
-    wait_for_enter();
-}
-
 void print_backstory(void) {
     printf("\n--------------------------------------------------\n");
     print_pause("In the shadowed lands of Yharnam, a dark lord terrorizes the realm.");
@@ -43,26 +30,6 @@ void print_backstory(void) {
     printf("Prepare well, for without these relics, you shall be ill prepared to face the dark lord.\n");
     printf("\n--------------------------------------------------\n");
     overworld_exploration();
-}
-
-/* Helper function: returns a valid integer from the user */
-int get_int_input(const char *prompt) {
-    int choice;
-    char input[128];
-    char *endptr;
-    while (1) {
-        printf("%s", prompt);
-        if (fgets(input, sizeof(input), stdin) != NULL) {
-            choice = strtol(input, &endptr, 10);
-            if (endptr == input || (*endptr != '\n' && *endptr != '\0')) {
-                printf("Wrong input, please choose a numeric value.\n");
-                continue;
-            }
-            return choice;
-        } else {
-            printf("Input error, please try again.\n");
-        }
-    }
 }
 
 void overworld_exploration(void) {
@@ -233,15 +200,15 @@ void dark_forest_encounter(void) {
         while (mainPlayer.health > 0 && beastHealth > 0) {
             printf("\nYour turn:\n");
             printf("Choose your attack:\n");
-            printf("1. Powerful strike (deals %d damage)\n", mainPlayer.attack);
-            printf("2. Normal strike (deals %d damage)\n", mainPlayer.attack / 2);
+            printf("1. Mighty blow (deals %d damage)\n", mainPlayer.attack);
+            printf("2. Swift jab (deals %d damage)\n", mainPlayer.attack / 2);
             attackChoice = get_int_input("Enter your choice: ");
             
             if (attackChoice == 1) {
-                printf("You use a powerful strike!\n");
+                printf("YYou deliver a mighty blow!\n");
                 beastHealth -= mainPlayer.attack;
             } else if (attackChoice == 2) {
-                printf("You use a normal strike.\n");
+                printf("You strike quickly with a swift jab.\n");
                 beastHealth -= mainPlayer.attack / 2;
             } else {
                 printf("Invalid choice. Please try again.\n");
@@ -324,5 +291,5 @@ void old_sage_tower(void) {
     
     print_pause("You approach the Old Sage Tower.");
     print_pause("With both the map fragment and the mystic herb in hand, the ancient door opens for you...");
-    run_quests(&mainPlayer);
+    enter_old_sage_tower(&mainPlayer);
 }

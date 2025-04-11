@@ -38,19 +38,16 @@ void display_stats(const Player *player) {
 void gain_exp(Player *player, int exp_gain) {
     player->exp += exp_gain;
     printf("\nYou gained %d EXP. Total EXP is now %d.\n", exp_gain, player->exp);
-    while (player->exp >= 100) {
-        player->exp -= 100;
-        player->level++;
-        /* 
-           Reset health to BASE_HEALTH and then increase by 50% of BASE_HEALTH for each level above 1.
-           So for level 2: health = BASE_HEALTH + (BASE_HEALTH/2)
-           For level 3: health = BASE_HEALTH + 2*(BASE_HEALTH/2), etc.
-        */
+    while (player->exp >= player->level * 100) {
+        int threshold = player->level * 100;
+        player->exp -= threshold;
+        player->level++; 
         player->health = BASE_HEALTH + ((player->level - 1) * (BASE_HEALTH / 2));
-        /* We continue to increase attack and defense in the old way or you can apply similar logic if desired */
         player->attack += player->attack / 2;
         player->defense += player->defense / 2;
+        
         printf("\n*** LEVEL UP! You are now level %d! ***\n", player->level);
         display_stats(player);
+        printf("EXP needed for next level: %d\n", player->level * 100);
     }
 }
