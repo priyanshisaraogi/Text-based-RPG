@@ -304,7 +304,7 @@ void traverse_maze(void)
                 }
                 
                 if (choice != correct[step]) {
-                    print_pause("Wrong choice! You have been forced back to the maze entrance.");
+                    print_pause("Wrong choice! The passages suddenly turn dark, and so you hurriedly head back to the start of the maze.");
                     goto restart_maze;
                 } else {  /* Correct choice: give extra narrative */
                     if (step == 0) {
@@ -314,7 +314,7 @@ void traverse_maze(void)
                     } else if (step == 2) {
                         print_pause("Finally, you turn left again and the passage opens into a secret chamber.");
                     }
-                    print_pause("Correct choice!");
+                    printf("Correct choice!\n");
                     break;  /* Move to next step */
                 }
             }

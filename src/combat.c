@@ -140,6 +140,7 @@ void final_dungeon(Player *player) {
         printf("Are you ready to face the dark lord? (y/n): ");
         
         if (scanf(" %c", &ready) != 1) {
+            while(getchar() != '\n');
             printf("Invalid input. Please enter only 'y' or 'n'.\n");
             continue;
         }
@@ -151,7 +152,9 @@ void final_dungeon(Player *player) {
             printf("Invalid input. Please enter only 'y' or 'n'.\n");
         }
     }
-    
+
+    while(getchar() != '\n');
+
     if (ready == 'y' || ready == 'Y') {
         print_pause("With courage in your heart, you take a deep breath and step forward, pushing open the massive gates.");
     } else {  /* (ready is 'n' or 'N') */
@@ -201,7 +204,7 @@ void final_boss_fight(Player *player)
         }
         else
         {
-            printf("Invalid choice. You miss your attack!\n");
+            printf("Invalid choice. Try again!\n");
             continue;
         }
         
