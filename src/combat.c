@@ -3,14 +3,18 @@
 #include "player.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include "game_state.h"
 
 #define BASE_HEALTH 100
+
+extern GameState currentGameState;
 
 /* Function declarations */
 void final_boss_fight(Player *player);
 
 /* Function to solve the Temple Gate puzzle */
 void solve_guard_riddle(Player *player) {
+    currentGameState.location = STATE_GUARDS;
     int choice;
     
     while (1) {
@@ -53,6 +57,7 @@ void solve_guard_riddle(Player *player) {
 /* Function for the mini-boss fight */
 void mini_boss_fight(Player *player)
 {
+    currentGameState.location = STATE_MINI_BOSS;
     int bossHealth = 100;
     int bossAttack = 25;
     int attackChoice = 0;
@@ -128,6 +133,7 @@ void mini_boss_fight(Player *player)
 
 /* Function to enter the final dungeon */
 void final_dungeon(Player *player) {
+    currentGameState.location = STATE_FINAL_DUNGEON;
     char ready;
     
     print_pause("You trudge forward into the dark corridor, the air thick with tension.");
@@ -169,6 +175,7 @@ void final_dungeon(Player *player) {
 /* Function to fight the final boss */
 void final_boss_fight(Player *player)
 {
+    currentGameState.location = STATE_FINAL_BOSS;
     int bossHealth = 150;  
     int bossAttack = 25;    
     int attackChoice = 0;
@@ -234,6 +241,7 @@ void final_boss_fight(Player *player)
     }
     else
     {
+        currentGameState.location = STATE_VICTORY;
         print_pause("With one final, decisive blow, you stabbed through the Dark Lord!");
         print_pause("The Dark Lord lets out a blood-curdling scream, he croaks out, \"Impossible...a mortal has defeated me?\".");
         print_pause("As he falls to the ground, the dark energy surrounding him dissipates, and the castle begins to crumble.");

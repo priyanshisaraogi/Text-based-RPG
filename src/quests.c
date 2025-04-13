@@ -5,11 +5,16 @@
 #include "quests.h"
 #include "common.h"
 #include "combat.h"
+#include "game_state.h"
 
 #define BASE_HEALTH 100 
 
+extern GameState currentGameState;
+
+
 void enter_old_sage_tower(Player *player)
 {
+    currentGameState.location = STATE_TOWER;
     int solved = 0;
     
     if (!player->has_mystic_herb || !player->has_map_fragment)
@@ -43,6 +48,7 @@ void enter_old_sage_tower(Player *player)
 
 int solve_puzzle(void)
 {
+    currentGameState.location = STATE_PUZZLE;
     int i;
     int c1, c2, c3;
     const char *clues[5] = {
@@ -74,6 +80,7 @@ int solve_puzzle(void)
 
 void combat_volcano_dungeon(Player *player)
 {
+    currentGameState.location = STATE_VOLCANO_DUNGEON;
     int beastHealth = 75;
     int beastAttack = 20;
     int attackChoice = 0;
@@ -143,6 +150,7 @@ void combat_volcano_dungeon(Player *player)
 
 int solve_ice_puzzle(void)
 {
+    currentGameState.location = STATE_ICE_PUZZLE;
     char answer[50];
     size_t len;
     
@@ -170,6 +178,7 @@ int solve_ice_puzzle(void)
 
 void collect_crystals(Player *player)
 {
+    currentGameState.location = STATE_CRYSTALS;
     int room_choice = 0;
     int result;
     
@@ -288,6 +297,7 @@ void collect_crystals(Player *player)
 
 void traverse_maze(void)
 {
+    currentGameState.location = STATE_MAZE;
     int correct[3] = {1, 2, 1};  /* The correct sequence for the 3 steps */
     int step, choice, result;
     
@@ -329,6 +339,7 @@ restart_maze:
 
 void craft_master_sword(Player *player)
 {
+    currentGameState.location = STATE_MASTER_SWORD;
     print_pause("With all 3 Crystals of Power, you head below the basement of the Old Sage Tower, towards the mines.");
     print_pause("You must find a Rare Ore to craft the Master Sword.");
     print_pause("You venture into the mines and face a maze of twisting corridors...");

@@ -2,7 +2,6 @@
 #define EXPLORATION_H
 
 /* Function prototypes */
-void start_game(void);
 void print_backstory(void);
 void overworld_exploration(void);
 int handle_fork_path(void);

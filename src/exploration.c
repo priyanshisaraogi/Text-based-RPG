@@ -4,21 +4,16 @@
 #include "common.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include "game_state.h"
+
+extern GameState currentGameState;
+extern Player mainPlayer;
 
 /* Global flag for tower entry - relic flags now reside in mainPlayer */
 int towerEntered = 0;
 
-/* Declare a persistent player instance. */
-Player mainPlayer;
-
-void start_game(void) {
-    /* Initialize mainPlayer with starting stats (and relic flags are set in init_player) */
-    init_player(&mainPlayer);
-    printf("Starting game...\n");
-    print_backstory();
-}
-
 void print_backstory(void) {
+    currentGameState.location = STATE_VILLAGE;
     printf("\n--------------------------------------------------\n");
     print_pause("In the shadowed lands of Yharnam, a dark lord terrorizes the realm.");
     print_pause("Chosen by the gods, you are the beacon of hope destined to stop him.");
@@ -33,6 +28,7 @@ void print_backstory(void) {
 }
 
 void overworld_exploration(void) {
+    currentGameState.location = STATE_OVERWORLD;
     int area;
     printf("\nAs you leave your village, you enter the overworld. Your journey begins...\n");
     
@@ -65,6 +61,7 @@ void overworld_exploration(void) {
 }
 
 int handle_fork_path(void) {
+    currentGameState.location = STATE_FORKED_PATH;
     int choice = 0;               
     char input[128];
     char *endptr = NULL;          
@@ -121,6 +118,7 @@ int is_correct_direction(int area, int direction) {
 }
 
 void bandit_camp_encounter(void) {
+    currentGameState.location = STATE_BANDIT_CAMP;
     int choice = 0;
     while (1) {
         printf("\nAt the Bandit Camp, your mission is to retrieve the map fragment.\n");
@@ -162,6 +160,7 @@ void bandit_camp_encounter(void) {
 }
 
 void dark_forest_encounter(void) {
+    currentGameState.location = STATE_DARK_FOREST;
     int choice = 0;
     while (1) {
         printf("\nAt the Dark Forest, a ferocious beast guards the mystic herb.\n");
