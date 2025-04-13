@@ -19,5 +19,6 @@ typedef struct {
 void init_player(Player *player);
 void display_stats(const Player *player);
 void gain_exp(Player *player, int exp_gain);
+void reset_player_state(void);
 
 #endif

@@ -3,6 +3,8 @@
 
 #define BASE_HEALTH 100 
 
+Player currentPlayer;
+
 void init_player(Player *player) {
     player->health = 100;
     player->attack = 10;
@@ -50,4 +52,8 @@ void gain_exp(Player *player, int exp_gain) {
         display_stats(player);
         printf("EXP needed for next level: %d\n", player->level * 100);
     }
+}
+
+void reset_player_state(void) {
+    init_player(&currentPlayer);
 }

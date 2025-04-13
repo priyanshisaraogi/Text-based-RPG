@@ -4,6 +4,7 @@
 #include "player.h"
 #include "quests.h"
 #include "common.h"
+#include "combat.h"
 
 #define BASE_HEALTH 100 
 
@@ -333,6 +334,7 @@ void craft_master_sword(Player *player)
     print_pause("You venture into the mines and face a maze of twisting corridors...");
     traverse_maze();
     player->has_rare_ore = 1;
+    gain_exp(player, 100);
     print_pause("After finding the Rare Ore, you leave the mines and travel back to the ground floor, where a forge awaits you.");
     print_pause("You place the 3 Crystals of Power and the Rare Ore into the forge. The forge roars to life, and the air crackles with energy.");
     print_pause("With your skills as a blacksmith's apprentice, you begin crafting the Master Sword.");
@@ -349,6 +351,7 @@ void approach_dark_lord_castle(Player *player)
 {
     print_pause("Clutching the legendary Master Sword, you leave the Old Sage Tower behind.");
     print_pause("You traverse treacherous lands and murky forests, the weight of destiny on your shoulders.");
-    print_pause("At long last, you approach the foreboding gates of the Dark Lord's Castle, ready to defeat him once and for all.");
+    print_pause("At long last, you approach the foreboding entrance of the Dark Lord's Castle, ready to defeat him once and for all.");
     /* Here you could call a function like assault_dark_lord_castle(player); if desired. */
+    solve_guard_riddle(player);
 }
