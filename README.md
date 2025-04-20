@@ -16,7 +16,7 @@ The game features branching paths, humorous encounters, turn-based combat, and a
 
 ## How to Compile
 
-1. **Ensure you have a C compiler installed** (e.g., `gcc` on macOS/Linux or `MinGW` on Windows).
+1. **Ensure you have a C compiler installed** (e.g., `gcc`).
 2. **Open a terminal in the project directory.**
 
 ### Using the Makefile (Recommended)
@@ -27,20 +27,20 @@ If a `Makefile` is provided, simply run:
 make
 ```
 
-This will build the game and create an executable named `text_rpg` (or as specified in your Makefile).
+This will build the game and create an executable named `Legacy_of_Yharnam`.
 
 ### Manual Compilation
 
 If you prefer to compile manually, you can run:
 
 ```sh
-gcc src/*.c -o text_rpg
+gcc -Wall -Werror -ansi -pedantic src/*.c -o Legacy_of_Yharnam
 ```
 
 Or, if you want to specify files individually:
 
 ```sh
-gcc src/main.c src/player.c src/exploration.c src/quests.c src/combat.c src/common.c src/save.c -o text_rpg
+gcc -Wall -Werror -ansi -pedantic src/main.c src/player.c src/exploration.c src/quests.c src/combat.c src/common.c src/save.c -o Legacy_of_Yharnam
 ```
 
 3. **Run the game:**
