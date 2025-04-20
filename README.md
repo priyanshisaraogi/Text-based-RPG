@@ -2,16 +2,22 @@
 
 ## Overview
 
-**LEGACY OF YHARNAM SHADOWS OF THE FORGOTTEN** is a text-based RPG adventure written in C.  
-You play as a chosen hero on a quest to gather ancient relics, solve puzzles, and defeat powerful foes—including the Dark Lord himself.  
+**LEGACY OF YHARNAM: SHADOWS OF THE FORGOTTEN** is a text-based RPG adventure written in C.
+
+You play as a chosen hero on a quest to gather ancient relics, solve puzzles, and defeat powerful foes—including the Dark Lord himself. 
+ 
 The game features branching paths, humorous encounters, turn-based combat, and a classic fantasy storyline.
 
 ## Features
 
 - Explore forests, dungeons, and castles
+
 - Solve riddles and puzzles
+
 - Engage in turn-based battles with monsters and bosses
+
 - Collect relics and powerful items
+
 - Make choices that affect your journey
 
 ## How to Compile
@@ -46,7 +52,7 @@ gcc -Wall -Werror -ansi -pedantic src/main.c src/player.c src/exploration.c src/
 3. **Run the game:**
 
    ```sh
-   ./text_rpg
+   ./Legacy_of_Yharnam
    ```
 
 ## Notes
