@@ -10,7 +10,6 @@ extern Player mainPlayer;
 
 const char* get_location_name(GameLocation loc);
 
-
 void wait_for_enter(void) {
     int c;
 
@@ -51,7 +50,6 @@ int get_int_input(const char *prompt) {
     }
 }
 
-
 void handle_pause_menu(void) {
     int option = 0;
     printf("\n--- GAME PAUSED ---\n");
@@ -72,6 +70,7 @@ void handle_pause_menu(void) {
             return;
         } else if (option == 2) {
             int slot = 0;
+            int format_choice;
             char filename[64];
 
             printf("\nChoose a save slot:\n");
@@ -86,15 +85,27 @@ void handle_pause_menu(void) {
                 continue;
             }
 
+            printf("\nSelect save format:\n");
+            printf("1. Text (.txt)\n");
+            printf("2. Binary (.dat)\n");
+            format_choice = get_int_input("Enter choice (1-2): ");
+            if (format_choice < 1 || format_choice > 2) {
+                printf("Invalid choice. Save cancelled.\n");
+                continue;
+            }
+
+            const char *ext = (format_choice == 1) ? ".txt" : ".dat";
+            sprintf(filename, "save_slot%d%s", slot, ext);
+
             currentGameState.player = mainPlayer;
 
             const char* location_name = get_location_name(currentGameState.location);
-            sprintf(filename, "save_slot%d.dat", slot);
 
             if (save_game(&currentGameState, filename)) {
                 printf("\nGame saved to:\n");
                 printf("  Slot %d\n", slot);
                 printf("  Location: %s\n", location_name);
+                printf("  Format: %s\n", ext);
             } else {
                 printf("Failed to save game.\n");
             }
@@ -115,9 +126,6 @@ void handle_pause_menu(void) {
     }
 }
 
-
-
-
 const char* get_location_name(GameLocation loc) {
     switch (loc) {
         case STATE_OVERWORLD: return "OVERWORLD";
@@ -137,4 +145,3 @@ const char* get_location_name(GameLocation loc) {
         default: return "UNKNOWN";
     }
 }
-
