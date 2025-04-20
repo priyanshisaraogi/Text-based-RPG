@@ -8,15 +8,12 @@
 #include "quests.h"
 #include "combat.h"
 
-// Define global variables that were previously extern
 GameState currentGameState;
 Player mainPlayer;
 
-// Magic number and version for save file validation
 #define SAVE_MAGIC "RPG_SAVE"
 #define SAVE_VERSION 1
 
-// Simple checksum calculation
 unsigned short calculate_checksum(const GameState *state) {
     unsigned short checksum = 0;
     checksum += state->location;
@@ -29,7 +26,6 @@ unsigned short calculate_checksum(const GameState *state) {
     return checksum;
 }
 
-// Save game state to a text file
 int save_game_text(const GameState *state, const char *filename) {
     FILE *fp = fopen(filename, "w");
     if (!fp) {
@@ -58,7 +54,6 @@ int save_game_text(const GameState *state, const char *filename) {
     return 1;
 }
 
-// Save game state to a binary file
 int save_game_binary(const GameState *state, const char *filename) {
     FILE *fp = fopen(filename, "wb");
     if (!fp) {
@@ -66,12 +61,10 @@ int save_game_binary(const GameState *state, const char *filename) {
         return 0;
     }
 
-    // Write magic string and version
-    int version = SAVE_VERSION; // Create a variable for the macro
+    int version = SAVE_VERSION; 
     fwrite(SAVE_MAGIC, sizeof(char), strlen(SAVE_MAGIC) + 1, fp);
     fwrite(&version, sizeof(int), 1, fp);
 
-    // Write game state
     fwrite(&state->location, sizeof(GameLocation), 1, fp);
     fwrite(&state->player.health, sizeof(int), 1, fp);
     fwrite(&state->player.attack, sizeof(int), 1, fp);
@@ -86,7 +79,6 @@ int save_game_binary(const GameState *state, const char *filename) {
     fwrite(&state->player.has_rare_ore, sizeof(int), 1, fp);
     fwrite(&state->player.has_master_sword, sizeof(int), 1, fp);
 
-    // Write checksum
     unsigned short checksum = calculate_checksum(state);
     fwrite(&checksum, sizeof(unsigned short), 1, fp);
 
@@ -94,7 +86,6 @@ int save_game_binary(const GameState *state, const char *filename) {
     return 1;
 }
 
-// Wrapper for saving game (chooses text or binary based on extension)
 int save_game(const GameState *state, const char *filename) {
     const char *ext = strrchr(filename, '.');
     if (ext && strcmp(ext, ".dat") == 0) {
@@ -103,7 +94,6 @@ int save_game(const GameState *state, const char *filename) {
     return save_game_text(state, filename);
 }
 
-// State machine states for parsing
 typedef enum {
     PARSE_HEADER,
     PARSE_DATA,
@@ -111,7 +101,6 @@ typedef enum {
     PARSE_ERROR
 } ParseState;
 
-// Load game state from a text file with state machine
 int load_game_text(GameState *state, const char *filename) {
     FILE *fp = fopen(filename, "r");
     if (!fp) {
@@ -124,11 +113,11 @@ int load_game_text(GameState *state, const char *filename) {
     int version = 0;
     unsigned short expected_checksum = 0;
     int fields_parsed = 0;
-    const int expected_fields = 13; // Number of data fields (excluding header/checksum)
+    const int expected_fields = 13; 
 
     while (fgets(line, sizeof(line), fp)) {
-        line[strcspn(line, "\n")] = '\0'; // Remove newline
-        if (strlen(line) == 0) continue; // Skip empty lines
+        line[strcspn(line, "\n")] = '\0'; 
+        if (strlen(line) == 0) continue; 
 
         char *key = strtok(line, "=");
         char *value = strtok(NULL, "=");
@@ -164,7 +153,6 @@ int load_game_text(GameState *state, const char *filename) {
                     parse_state = PARSE_CHECKSUM;
                     break;
                 }
-                // Parse data fields
                 if (strcmp(key, "location") == 0) {
                     state->location = (GameLocation)atoi(value);
                     if (state->location < STATE_MAIN_MENU || state->location > STATE_FINAL_BOSS) {
@@ -215,7 +203,6 @@ int load_game_text(GameState *state, const char *filename) {
                 break;
 
             case PARSE_CHECKSUM:
-                // Shouldn't reach here due to earlier break
                 parse_state = PARSE_ERROR;
                 break;
 
@@ -245,7 +232,6 @@ int load_game_text(GameState *state, const char *filename) {
     return 1;
 }
 
-// Load game state from a binary file
 int load_game_binary(GameState *state, const char *filename) {
     FILE *fp = fopen(filename, "rb");
     if (!fp) {
@@ -253,7 +239,6 @@ int load_game_binary(GameState *state, const char *filename) {
         return 0;
     }
 
-    // Read and validate magic string
     char magic[sizeof(SAVE_MAGIC)];
     fread(magic, sizeof(char), strlen(SAVE_MAGIC) + 1, fp);
     if (strcmp(magic, SAVE_MAGIC) != 0) {
@@ -262,7 +247,6 @@ int load_game_binary(GameState *state, const char *filename) {
         return 0;
     }
 
-    // Read and validate version
     int version;
     fread(&version, sizeof(int), 1, fp);
     if (version != SAVE_VERSION) {
@@ -271,7 +255,6 @@ int load_game_binary(GameState *state, const char *filename) {
         return 0;
     }
 
-    // Read game state
     fread(&state->location, sizeof(GameLocation), 1, fp);
     fread(&state->player.health, sizeof(int), 1, fp);
     fread(&state->player.attack, sizeof(int), 1, fp);
@@ -286,7 +269,6 @@ int load_game_binary(GameState *state, const char *filename) {
     fread(&state->player.has_rare_ore, sizeof(int), 1, fp);
     fread(&state->player.has_master_sword, sizeof(int), 1, fp);
 
-    // Validate data
     if (state->location < STATE_MAIN_MENU || state->location > STATE_FINAL_BOSS ||
         state->player.health < 0 || state->player.level < 1) {
         printf("Error: Invalid data in binary save file.\n");
@@ -294,7 +276,6 @@ int load_game_binary(GameState *state, const char *filename) {
         return 0;
     }
 
-    // Read and validate checksum
     unsigned short expected_checksum;
     fread(&expected_checksum, sizeof(unsigned short), 1, fp);
     unsigned short actual_checksum = calculate_checksum(state);
@@ -308,7 +289,6 @@ int load_game_binary(GameState *state, const char *filename) {
     return 1;
 }
 
-// Wrapper for loading game (chooses text or binary based on extension)
 int load_game(GameState *state, const char *filename) {
     const char *ext = strrchr(filename, '.');
     if (ext && strcmp(ext, ".dat") == 0) {
@@ -317,7 +297,6 @@ int load_game(GameState *state, const char *filename) {
     return load_game_text(state, filename);
 }
 
-// Resume from loaded state
 void resume_from_loaded_state(void) {
     GameLocation loc = currentGameState.location;
 
@@ -326,7 +305,6 @@ void resume_from_loaded_state(void) {
 
     switch (loc) {
         case STATE_MAIN_MENU:
-            /*todo*/ 
             break;
         case STATE_VILLAGE:
         case STATE_OVERWORLD:
@@ -404,7 +382,6 @@ void handle_load_game(void) {
         sprintf(filename, "save_slot%d%s", i, ext);
         FILE *fp = fopen(filename, format_choice == 1 ? "r" : "rb");
         if (fp) {
-            // Try to load to check if valid
             if (load_game(&temp, filename)) {
                 printf("Slot %d: %s\n", i, get_location_name(temp.location));
                 valid_slots[i] = 1;
