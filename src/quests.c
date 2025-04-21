@@ -305,17 +305,16 @@ void collect_crystals(Player *player)
 void traverse_maze(Player *player)
 {
     int correct[3] = {1, 2, 1};
-    int step, choice, result;
+    int step, choice;
     currentGameState.location = STATE_MAZE;
 
     while (1) {
         for (step = 0; step < 3; step++) {
             while (1) {
                 printf("Step %d: Choose your path (1 for Left, or 2 for Right): ", step + 1);
-                result = scanf("%d", &choice);
-                while (getchar() != '\n');
-
-                if (result != 1 || (choice != 1 && choice != 2)) {
+                choice = get_int_input("");
+                
+                if (choice != 1 && choice != 2) {
                     printf("Invalid input. Please enter 1 or 2.\n");
                     continue;
                 }
