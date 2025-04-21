@@ -9,11 +9,9 @@
 extern GameState currentGameState;
 extern Player mainPlayer;
 
-/* Global flag for tower entry - relic flags now reside in mainPlayer */
 int towerEntered = 0;
 
 void print_backstory(void) {
-    currentGameState.location = STATE_VILLAGE;
     printf("\n--------------------------------------------------\n");
     print_pause("In the shadowed lands of Yharnam, a dark lord terrorizes the realm.");
     print_pause("Chosen by the gods, you are the beacon of hope destined to stop him.");

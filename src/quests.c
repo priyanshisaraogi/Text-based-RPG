@@ -5,14 +5,11 @@
 #include "quests.h"
 #include "common.h"
 #include "combat.h"
-#include "game_state.h"
-
-#define BASE_HEALTH 100 
+#include "game_state.h" 
 
 extern GameState currentGameState;
 
 int strcasecmp(const char *s1, const char *s2);
-
 
 void enter_old_sage_tower(Player *player)
 {
@@ -304,9 +301,6 @@ void collect_crystals(Player *player)
 
     craft_master_sword(player);
 }
-
-
-
 
 void traverse_maze(Player *player)
 {

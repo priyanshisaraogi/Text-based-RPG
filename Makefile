@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Werror -pedantic
+CFLAGS = -Wall -Werror -pedantic -ansi
 SRC = $(wildcard src/*.c)
 OBJ = $(SRC:.c=.o)
 TARGET = Legacy_of_Yharnam

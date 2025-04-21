@@ -11,9 +11,6 @@
 extern GameState currentGameState;
 extern Player mainPlayer;
 
-#define SAVE_MAGIC "RPG_SAVE"
-#define SAVE_VERSION 1
-
 unsigned short calculate_checksum(const GameState *state) {
     unsigned short checksum = 0;
     checksum += state->location;
@@ -321,93 +318,6 @@ int load_game(GameState *state, const char *filename) {
     return load_game_text(state, filename);
 }
 
-void resume_from_loaded_state(void) {
-    GameLocation loc = currentGameState.location;
-
-    mainPlayer = currentGameState.player;
-    display_stats(&mainPlayer); 
-
-    switch (loc) {
-        case STATE_MAIN_MENU:
-            break;
-        case STATE_VILLAGE:
-        case STATE_OVERWORLD:
-            overworld_exploration();
-            break;
-        case STATE_BANDIT_CAMP:
-            bandit_camp_encounter();
-            break;
-        case STATE_DARK_FOREST:
-            dark_forest_encounter();
-            break;
-        case STATE_OLD_SAGE_TOWER:
-            old_sage_tower();
-            break;
-        case STATE_VOLCANO_DUNGEON:
-            combat_volcano_dungeon(&mainPlayer);
-            break;
-        case STATE_ICE_PUZZLE:
-            if (!mainPlayer.has_ice_crystal) {
-                while (!solve_ice_puzzle()) {
-                    print_pause("The inscription remains unreadable... your answer was not quite right. Try again.");
-                }
-                print_pause("The wall shimmers and reveals the hidden Ice Crystal!");
-                mainPlayer.has_ice_crystal = 1;
-                gain_exp(&mainPlayer, 50);
-            }
-            collect_crystals(&mainPlayer); 
-            break;
-        case STATE_HAUNTED_RUINS:
-            haunted_ruins_encounter(&mainPlayer);
-            break;
-        case STATE_CRYSTALS:
-            collect_crystals(&mainPlayer);
-            break;
-        case STATE_MAZE:
-            traverse_maze(&mainPlayer);
-            break;
-        case STATE_MASTER_SWORD:
-            if (!mainPlayer.has_rare_ore)
-            {
-                print_pause("With all 3 Crystals of Power, you head below the basement of the Old Sage Tower, towards the mines.");
-                print_pause("You must find a Rare Ore to craft the Master Sword.");
-                print_pause("You venture into the mines and face a maze of twisting corridors...");
-                traverse_maze(&mainPlayer);
-            }
-        
-            if (!mainPlayer.has_master_sword)
-            {
-                craft_master_sword(&mainPlayer); 
-            }
-        
-            if (mainPlayer.has_master_sword)
-            {
-                approach_dark_lord_castle(&mainPlayer);
-            }
-            break;
-        case STATE_GUARDS:
-            solve_guard_riddle(&mainPlayer);
-            break;
-        case STATE_MINI_BOSS:
-            mini_boss_fight(&mainPlayer);
-            break;
-        case STATE_FINAL_DUNGEON:
-            final_dungeon(&mainPlayer);
-            break;
-        case STATE_FINAL_BOSS:
-            final_boss_fight(&mainPlayer);
-            break;
-        case STATE_VICTORY:
-            ending_scene();
-            printf("\nThank you for playing!\n\n");
-            exit(0);
-        default:
-            printf("⚠ Unknown save location. Restarting from overworld...\n");
-            overworld_exploration();
-            break;
-    }
-}
-
 int handle_load_game(void) {
     char filename[64];
     GameState temp;
@@ -504,5 +414,93 @@ int handle_load_game(void) {
             printf("Failed to load save file. Returning to main menu.\n");
             return 0;
         }
+    }
+}
+
+void resume_from_loaded_state(void) {
+    GameLocation loc = currentGameState.location;
+
+    mainPlayer = currentGameState.player;
+    display_stats(&mainPlayer); 
+
+    switch (loc) {
+        case STATE_MAIN_MENU:
+            break;
+        case STATE_VILLAGE:
+            print_backstory();
+        case STATE_OVERWORLD:
+            overworld_exploration();
+            break;
+        case STATE_BANDIT_CAMP:
+            bandit_camp_encounter();
+            break;
+        case STATE_DARK_FOREST:
+            dark_forest_encounter();
+            break;
+        case STATE_OLD_SAGE_TOWER:
+            old_sage_tower();
+            break;
+        case STATE_VOLCANO_DUNGEON:
+            combat_volcano_dungeon(&mainPlayer);
+            break;
+        case STATE_ICE_PUZZLE:
+            if (!mainPlayer.has_ice_crystal) {
+                while (!solve_ice_puzzle()) {
+                    print_pause("The inscription remains unreadable... your answer was not quite right. Try again.");
+                }
+                print_pause("The wall shimmers and reveals the hidden Ice Crystal!");
+                mainPlayer.has_ice_crystal = 1;
+                gain_exp(&mainPlayer, 50);
+            }
+            collect_crystals(&mainPlayer); 
+            break;
+        case STATE_HAUNTED_RUINS:
+            haunted_ruins_encounter(&mainPlayer);
+            break;
+        case STATE_CRYSTALS:
+            collect_crystals(&mainPlayer);
+            break;
+        case STATE_MAZE:
+            traverse_maze(&mainPlayer);
+            break;
+        case STATE_MASTER_SWORD:
+            if (!mainPlayer.has_rare_ore)
+            {
+                print_pause("With all 3 Crystals of Power, you head below the basement of the Old Sage Tower, towards the mines.");
+                print_pause("You must find a Rare Ore to craft the Master Sword.");
+                print_pause("You venture into the mines and face a maze of twisting corridors...");
+                traverse_maze(&mainPlayer);
+            }
+        
+            if (!mainPlayer.has_master_sword)
+            {
+                craft_master_sword(&mainPlayer); 
+            }
+        
+            if (mainPlayer.has_master_sword)
+            {
+                approach_dark_lord_castle(&mainPlayer);
+            }
+            break;
+        case STATE_GUARDS:
+            solve_guard_riddle(&mainPlayer);
+            break;
+        case STATE_MINI_BOSS:
+            mini_boss_fight(&mainPlayer);
+            break;
+        case STATE_FINAL_DUNGEON:
+            final_dungeon(&mainPlayer);
+            break;
+        case STATE_FINAL_BOSS:
+            final_boss_fight(&mainPlayer);
+            break;
+        case STATE_VICTORY:
+            ending_scene();
+            printf("\nThank you for playing!\n\n");
+            exit(0);
+        default:
+            printf("⚠ Unknown save location. Restarting from overworld...\n");
+            overworld_exploration();
+            break;
     }
 }

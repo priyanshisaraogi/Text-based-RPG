@@ -5,8 +5,6 @@
 #include <stdlib.h>
 #include "game_state.h"
 
-#define BASE_HEALTH 100
-
 extern GameState currentGameState;
 
 /* Function declarations */

@@ -4,7 +4,7 @@
 
 
 typedef enum {
-    STATE_MAIN_MENU, /*start state i guess*/
+    STATE_MAIN_MENU,
     STATE_VILLAGE,
     STATE_OVERWORLD,
     STATE_FORKED_PATH,

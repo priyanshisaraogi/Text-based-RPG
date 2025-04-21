@@ -134,7 +134,7 @@ const char* get_location_name(GameLocation loc) {
         case STATE_OVERWORLD: return "OVERWORLD";
         case STATE_FORKED_PATH: return "FORKED PATH";
         case STATE_BANDIT_CAMP: return "BANDIT CAMP";
-        case STATE_DARK_FOREST: return "DARK_FOREST";
+        case STATE_DARK_FOREST: return "DARK FOREST";
         case STATE_OLD_SAGE_TOWER: return "OLD SAGE TOWER";
         case STATE_VOLCANO_DUNGEON: return "VOLCANO DUNGEON";
         case STATE_ICE_PUZZLE: return "ICE PUZZLE";

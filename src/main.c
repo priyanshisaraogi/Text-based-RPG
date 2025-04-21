@@ -9,7 +9,7 @@
 GameState currentGameState;
 Player mainPlayer;
 
-int main_menu(void) {
+static int main_menu(void) {
     int choice;
 
     printf("\n================== MAIN MENU =========================\n\n");
@@ -32,7 +32,7 @@ int main_menu(void) {
     return choice;
 }
 
-void start_game(void) {
+static void start_game(void) {
     int choice;
 
     currentGameState.location = STATE_MAIN_MENU;
