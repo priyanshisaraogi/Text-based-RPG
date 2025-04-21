@@ -9,7 +9,9 @@
 GameState currentGameState;
 Player mainPlayer;
 
-void main_menu(void) {
+int main_menu(void) {
+    int choice;
+
     printf("\n================== MAIN MENU =========================\n\n");
     printf("       ╔════════════════════════════════╗       \n");
     printf("       ║        LEGACY OF YHARNAM       ║       \n");
@@ -26,25 +28,35 @@ void main_menu(void) {
     printf("Press ENTER to continue dialogue.\n");
     printf("Press 'p' at any time to pause and access the save/exit menu.\n\n");
 
-    int choice = get_int_input("Enter choice: ");
-
-    if (choice == 1) {
-        print_backstory();
-    } else if (choice == 2) {
-        handle_load_game();
-    } else if (choice == 3) {
-        printf("Farewell, hero.\n");
-        exit(0);
-    } else {
-        printf("Invalid choice. Please restart the game.\n");
-        exit(1);
-    }
+    choice = get_int_input("Enter choice: ");
+    return choice;
 }
 
 void start_game(void) {
+    int choice;
+
     currentGameState.location = STATE_MAIN_MENU;
     init_player(&mainPlayer);
-    main_menu();
+
+    while (1) {
+        choice = main_menu();
+
+        if (choice == 1) {
+            print_backstory();
+            break;
+        } else if (choice == 2) {
+            if (handle_load_game()) {
+                break;
+            } else {
+                printf("Returning to main menu.\n\n");
+            }
+        } else if (choice == 3) {
+            printf("Farewell, hero.\n");
+            exit(0);
+        } else {
+            printf("Invalid choice.\n");
+        }
+    }
 }
 
 int main(void) {

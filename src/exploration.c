@@ -28,8 +28,8 @@ void print_backstory(void) {
 }
 
 void overworld_exploration(void) {
-    currentGameState.location = STATE_OVERWORLD;
     int area;
+    currentGameState.location = STATE_OVERWORLD;
     printf("\nAs you leave your village, you enter the overworld. Your journey begins...\n");
     
     for (area = 1; area <= 5; area++) {
@@ -61,29 +61,21 @@ void overworld_exploration(void) {
 }
 
 int handle_fork_path(void) {
+    int choice = 0;
     currentGameState.location = STATE_FORKED_PATH;
-    int choice = 0;               
-    char input[128];
-    char *endptr = NULL;          
+
     while (1) {
         printf("\n--- Forked Path ---\n");
-        printf("Choose your path: 1 for Dark Forest, 2 for Bandit Camp: ");
-        if (fgets(input, sizeof(input), stdin) != NULL) {
-            choice = strtol(input, &endptr, 10);
-            if (endptr == input || (*endptr != '\n' && *endptr != '\0')) {
-                printf("Wrong input, please choose again.\n");
-                continue;
-            }
-            if (choice != 1 && choice != 2) {
-                printf("Wrong input, please choose again.\n");
-                continue;
-            }
+        choice = get_int_input("Choose your path: 1 for Dark Forest, 2 for Bandit Camp: ");
+
+        if (choice == 1 || choice == 2) {
             return choice;
         } else {
-            printf("Input error, please try again.\n");
+            printf("Wrong input, please choose 1 or 2.\n");
         }
     }
 }
+
 
 int choose_direction_for_area(int area) {
     int choice;
@@ -118,8 +110,9 @@ int is_correct_direction(int area, int direction) {
 }
 
 void bandit_camp_encounter(void) {
-    currentGameState.location = STATE_BANDIT_CAMP;
     int choice = 0;
+    currentGameState.location = STATE_BANDIT_CAMP;
+    
     while (1) {
         printf("\nAt the Bandit Camp, your mission is to retrieve the map fragment.\n");
         printf("You have two options:\n");
@@ -160,8 +153,9 @@ void bandit_camp_encounter(void) {
 }
 
 void dark_forest_encounter(void) {
-    currentGameState.location = STATE_DARK_FOREST;
     int choice = 0;
+    currentGameState.location = STATE_DARK_FOREST;
+    
     while (1) {
         printf("\nAt the Dark Forest, a ferocious beast guards the mystic herb.\n");
         printf("Choose your approach:\n");
@@ -244,7 +238,7 @@ void dark_forest_encounter(void) {
             printf("Current status:\n");
             display_stats(&mainPlayer);
             if (mainPlayer.has_map_fragment && mainPlayer.has_mystic_herb) {
-                print_pause("You have gathered all required relics yet. Hence, you can now head towards the old sage tower.");
+                print_pause("You have gathered all the required relics. Hence, you can now head towards the old sage tower.");
                 old_sage_tower();
             } else { 
                 print_pause("However, you haven't gathered all required relics yet. Thus you return to the forked path.");

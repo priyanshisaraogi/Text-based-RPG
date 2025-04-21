@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <stdlib.h>
+#include <stdlib.h> 
 #include "common.h"
 #include "save.h"
 #include "player.h"
@@ -56,8 +56,8 @@ void handle_pause_menu(void) {
     while (1) {
         printf("1. Resume Game\n");
         printf("2. Save Game\n");
-        printf("3. Restart Game\n");   
-        printf("4. Exit Game\n");      
+        printf("3. Restart Game\n");
+        printf("4. Exit Game\n");
         printf("Enter option: ");
         if (scanf("%d", &option) != 1) {
             while (getchar() != '\n');
@@ -72,6 +72,8 @@ void handle_pause_menu(void) {
             int slot = 0;
             int format_choice;
             char filename[64];
+            const char *ext;
+            const char* location_name;
 
             printf("\nChoose a save slot:\n");
             printf("1. Save Slot 1\n");
@@ -94,31 +96,30 @@ void handle_pause_menu(void) {
                 continue;
             }
 
-            const char *ext = (format_choice == 1) ? ".txt" : ".dat";
+            ext = (format_choice == 1) ? ".txt" : ".dat";
             sprintf(filename, "save_slot%d%s", slot, ext);
 
             currentGameState.player = mainPlayer;
-
-            const char* location_name = get_location_name(currentGameState.location);
+            location_name = get_location_name(currentGameState.location);
 
             if (save_game(&currentGameState, filename)) {
                 printf("\nGame saved to:\n");
                 printf("  Slot %d\n", slot);
                 printf("  Location: %s\n", location_name);
-                printf("  Format: %s\n", ext);
+                printf("  Format: %s\n\n", ext);
             } else {
                 printf("Failed to save game.\n");
             }
 
-        } else if (option == 3) {  
+        } else if (option == 3) {
             printf("\nRestarting game...\n");
-            reset_player_state();           
+            reset_player_state();
             currentGameState.location = STATE_VILLAGE;
-            print_backstory();       
+            print_backstory();
             return;
 
         } else if (option == 4) {
-            printf("Exiting game...\n");
+            printf("Farewell, hero.\n");
             exit(0);
         } else {
             printf("Invalid option.\n");
@@ -126,15 +127,18 @@ void handle_pause_menu(void) {
     }
 }
 
+
 const char* get_location_name(GameLocation loc) {
     switch (loc) {
+        case STATE_VILLAGE: return "VILLAGE";
         case STATE_OVERWORLD: return "OVERWORLD";
-        case STATE_BANDIT_CAMP: return "BANDIT_CAMP";
+        case STATE_FORKED_PATH: return "FORKED PATH";
+        case STATE_BANDIT_CAMP: return "BANDIT CAMP";
         case STATE_DARK_FOREST: return "DARK_FOREST";
-        case STATE_TOWER: return "OLD SAGE TOWER";
-        case STATE_PUZZLE: return "PUZZLE";
+        case STATE_OLD_SAGE_TOWER: return "OLD SAGE TOWER";
         case STATE_VOLCANO_DUNGEON: return "VOLCANO DUNGEON";
         case STATE_ICE_PUZZLE: return "ICE PUZZLE";
+        case STATE_HAUNTED_RUINS: return "HAUNTED RUINS";
         case STATE_CRYSTALS: return "CRYSTALS";
         case STATE_MAZE: return "MAZE";
         case STATE_MASTER_SWORD: return "MASTER SWORD";
@@ -142,6 +146,7 @@ const char* get_location_name(GameLocation loc) {
         case STATE_MINI_BOSS: return "MINIBOSS";
         case STATE_FINAL_DUNGEON: return "FINAL DUNGEON";
         case STATE_FINAL_BOSS: return "FINAL BOSS";
+        case STATE_VICTORY: return "ENDING SCENE";
         default: return "UNKNOWN";
     }
-}
+} 

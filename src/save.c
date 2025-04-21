@@ -8,8 +8,8 @@
 #include "quests.h"
 #include "combat.h"
 
-GameState currentGameState;
-Player mainPlayer;
+extern GameState currentGameState;
+extern Player mainPlayer;
 
 #define SAVE_MAGIC "RPG_SAVE"
 #define SAVE_VERSION 1
@@ -27,9 +27,14 @@ unsigned short calculate_checksum(const GameState *state) {
 }
 
 int save_game_text(const GameState *state, const char *filename) {
-    FILE *fp = fopen(filename, "w");
+    char fullpath[64];
+    FILE *fp;
+
+    sprintf(fullpath, "src/%s", filename);
+
+    fp = fopen(fullpath, "w");
     if (!fp) {
-        printf("Error: Could not open file %s for writing.\n", filename);
+        printf("Error: Could not open file %s for writing.\n", fullpath);
         return 0;
     }
 
@@ -54,14 +59,22 @@ int save_game_text(const GameState *state, const char *filename) {
     return 1;
 }
 
+
 int save_game_binary(const GameState *state, const char *filename) {
-    FILE *fp = fopen(filename, "wb");
+    char fullpath[64];
+    FILE *fp;
+    int version;
+    unsigned short checksum;
+
+    sprintf(fullpath, "src/%s", filename);
+
+    fp = fopen(fullpath, "wb");
     if (!fp) {
-        printf("Error: Could not open file %s for writing.\n", filename);
+        printf("Error: Could not open file %s for writing.\n", fullpath);
         return 0;
     }
 
-    int version = SAVE_VERSION; 
+    version = SAVE_VERSION;
     fwrite(SAVE_MAGIC, sizeof(char), strlen(SAVE_MAGIC) + 1, fp);
     fwrite(&version, sizeof(int), 1, fp);
 
@@ -79,12 +92,13 @@ int save_game_binary(const GameState *state, const char *filename) {
     fwrite(&state->player.has_rare_ore, sizeof(int), 1, fp);
     fwrite(&state->player.has_master_sword, sizeof(int), 1, fp);
 
-    unsigned short checksum = calculate_checksum(state);
+    checksum = calculate_checksum(state);
     fwrite(&checksum, sizeof(unsigned short), 1, fp);
 
     fclose(fp);
     return 1;
 }
+
 
 int save_game(const GameState *state, const char *filename) {
     const char *ext = strrchr(filename, '.');
@@ -103,24 +117,32 @@ typedef enum {
 
 int load_game_text(GameState *state, const char *filename) {
     FILE *fp = fopen(filename, "r");
+    ParseState parse_state;
+    char line[128];
+    int version;
+    int fields_parsed;
+    const int expected_fields = 13;
+    char *key;
+    char *value;
+    unsigned short expected_checksum;
+    unsigned short actual_checksum;
+
     if (!fp) {
         printf("Error: Could not open file %s for reading.\n", filename);
         return 0;
     }
 
-    ParseState parse_state = PARSE_HEADER;
-    char line[128];
-    int version = 0;
-    unsigned short expected_checksum = 0;
-    int fields_parsed = 0;
-    const int expected_fields = 13; 
+    parse_state = PARSE_HEADER;
+    version = 0;
+    expected_checksum = 0;
+    fields_parsed = 0;
 
     while (fgets(line, sizeof(line), fp)) {
         line[strcspn(line, "\n")] = '\0'; 
         if (strlen(line) == 0) continue; 
 
-        char *key = strtok(line, "=");
-        char *value = strtok(NULL, "=");
+        key = strtok(line, "=");
+        value = strtok(NULL, "=");
         if (!key || !value) {
             parse_state = PARSE_ERROR;
             break;
@@ -155,7 +177,7 @@ int load_game_text(GameState *state, const char *filename) {
                 }
                 if (strcmp(key, "location") == 0) {
                     state->location = (GameLocation)atoi(value);
-                    if (state->location < STATE_MAIN_MENU || state->location > STATE_FINAL_BOSS) {
+                    if (state->location < STATE_MAIN_MENU || state->location > STATE_VICTORY) {
                         printf("Error: Invalid location value.\n");
                         parse_state = PARSE_ERROR;
                         break;
@@ -223,7 +245,7 @@ int load_game_text(GameState *state, const char *filename) {
         return 0;
     }
 
-    unsigned short actual_checksum = calculate_checksum(state);
+    actual_checksum = calculate_checksum(state);
     if (actual_checksum != expected_checksum) {
         printf("Error: Checksum mismatch. Save file may be corrupted.\n");
         return 0;
@@ -233,13 +255,17 @@ int load_game_text(GameState *state, const char *filename) {
 }
 
 int load_game_binary(GameState *state, const char *filename) {
+    int version;
+    unsigned short expected_checksum;
+    unsigned short actual_checksum;
+    char magic[sizeof(SAVE_MAGIC)];
+
     FILE *fp = fopen(filename, "rb");
     if (!fp) {
         printf("Error: Could not open file %s for reading.\n", filename);
         return 0;
     }
-
-    char magic[sizeof(SAVE_MAGIC)];
+    
     fread(magic, sizeof(char), strlen(SAVE_MAGIC) + 1, fp);
     if (strcmp(magic, SAVE_MAGIC) != 0) {
         printf("Error: Invalid save file magic string.\n");
@@ -247,7 +273,6 @@ int load_game_binary(GameState *state, const char *filename) {
         return 0;
     }
 
-    int version;
     fread(&version, sizeof(int), 1, fp);
     if (version != SAVE_VERSION) {
         printf("Error: Unsupported save file version %d.\n", version);
@@ -269,16 +294,15 @@ int load_game_binary(GameState *state, const char *filename) {
     fread(&state->player.has_rare_ore, sizeof(int), 1, fp);
     fread(&state->player.has_master_sword, sizeof(int), 1, fp);
 
-    if (state->location < STATE_MAIN_MENU || state->location > STATE_FINAL_BOSS ||
+    if (state->location < STATE_MAIN_MENU || state->location > STATE_VICTORY ||
         state->player.health < 0 || state->player.level < 1) {
         printf("Error: Invalid data in binary save file.\n");
         fclose(fp);
         return 0;
     }
 
-    unsigned short expected_checksum;
     fread(&expected_checksum, sizeof(unsigned short), 1, fp);
-    unsigned short actual_checksum = calculate_checksum(state);
+    actual_checksum = calculate_checksum(state);
     if (actual_checksum != expected_checksum) {
         printf("Error: Checksum mismatch in binary save file.\n");
         fclose(fp);
@@ -316,26 +340,50 @@ void resume_from_loaded_state(void) {
         case STATE_DARK_FOREST:
             dark_forest_encounter();
             break;
-        case STATE_TOWER:
+        case STATE_OLD_SAGE_TOWER:
             old_sage_tower();
-            break;
-        case STATE_PUZZLE:
-            solve_puzzle();
             break;
         case STATE_VOLCANO_DUNGEON:
             combat_volcano_dungeon(&mainPlayer);
             break;
         case STATE_ICE_PUZZLE:
-            solve_ice_puzzle();
+            if (!mainPlayer.has_ice_crystal) {
+                while (!solve_ice_puzzle()) {
+                    print_pause("The inscription remains unreadable... your answer was not quite right. Try again.");
+                }
+                print_pause("The wall shimmers and reveals the hidden Ice Crystal!");
+                mainPlayer.has_ice_crystal = 1;
+                gain_exp(&mainPlayer, 50);
+            }
+            collect_crystals(&mainPlayer); 
+            break;
+        case STATE_HAUNTED_RUINS:
+            haunted_ruins_encounter(&mainPlayer);
             break;
         case STATE_CRYSTALS:
             collect_crystals(&mainPlayer);
             break;
         case STATE_MAZE:
-            traverse_maze();
+            traverse_maze(&mainPlayer);
             break;
         case STATE_MASTER_SWORD:
-            craft_master_sword(&mainPlayer);
+            if (!mainPlayer.has_rare_ore)
+            {
+                print_pause("With all 3 Crystals of Power, you head below the basement of the Old Sage Tower, towards the mines.");
+                print_pause("You must find a Rare Ore to craft the Master Sword.");
+                print_pause("You venture into the mines and face a maze of twisting corridors...");
+                traverse_maze(&mainPlayer);
+            }
+        
+            if (!mainPlayer.has_master_sword)
+            {
+                craft_master_sword(&mainPlayer); 
+            }
+        
+            if (mainPlayer.has_master_sword)
+            {
+                approach_dark_lord_castle(&mainPlayer);
+            }
             break;
         case STATE_GUARDS:
             solve_guard_riddle(&mainPlayer);
@@ -349,6 +397,10 @@ void resume_from_loaded_state(void) {
         case STATE_FINAL_BOSS:
             final_boss_fight(&mainPlayer);
             break;
+        case STATE_VICTORY:
+            ending_scene();
+            printf("\nThank you for playing!\n\n");
+            exit(0);
         default:
             printf("⚠ Unknown save location. Restarting from overworld...\n");
             overworld_exploration();
@@ -356,72 +408,101 @@ void resume_from_loaded_state(void) {
     }
 }
 
-void handle_load_game(void) {
-    char filename[32];
+int handle_load_game(void) {
+    char filename[64];
     GameState temp;
     int slot;
     int format_choice;
-    int valid_slots[5] = {0};
-    int found_any = 0;
+    const char *ext;
+    int i;
+    FILE *fp;
+    int retry;
+    int valid_slots[5];
+    int found_any;
 
-    printf("\n--- Load Game ---\n\n");
-    printf("Select file format to load:\n");
-    printf("1. Text (.txt)\n");
-    printf("2. Binary (.dat)\n");
-    format_choice = get_int_input("Enter choice (1-2): ");
-    if (format_choice < 1 || format_choice > 2) {
-        printf("Invalid choice. Load cancelled.\n");
-        return;
-    }
-
-    const char *ext = (format_choice == 1) ? ".txt" : ".dat";
-
-    printf("\n--- Saved Slots (%s) ---\n\n", ext);
-
-    for (int i = 1; i <= 4; i++) {
-        sprintf(filename, "save_slot%d%s", i, ext);
-        FILE *fp = fopen(filename, format_choice == 1 ? "r" : "rb");
-        if (fp) {
-            if (load_game(&temp, filename)) {
-                printf("Slot %d: %s\n", i, get_location_name(temp.location));
-                valid_slots[i] = 1;
-                found_any = 1;
-            } else {
-                printf("Slot %d: [Corrupted Save]\n", i);
-            }
-            fclose(fp);
-        } else {
-            printf("Slot %d: [Empty]\n", i);
+    while (1) {
+        for (i = 0; i < 5; i++) {
+            valid_slots[i] = 0;
         }
-    }
+        found_any = 0;
 
-    if (!found_any) {
-        printf("\nNo save files found for %s format.\n", ext);
-        printf("----------------------\n");
-        return;
-    }
+        printf("\n--- Load Game ---\n\n");
+        printf("Select file format to load:\n");
+        printf("1. Text (.txt)\n");
+        printf("2. Binary (.dat)\n");
+        format_choice = get_int_input("Enter choice (1–2): ");
 
-    printf("\n----------------------\n");
-    slot = get_int_input("Enter slot number to load (1–4): ");
+        if (format_choice == 1) {
+            ext = ".txt";
+        } else if (format_choice == 2) {
+            ext = ".dat";
+        } else {
+            printf("Invalid choice. Returning to main menu.\n");
+            return 0;
+        }
 
-    if (slot < 1 || slot > 4) {
-        printf("Invalid slot number.\n");
-        return;
-    }
+        printf("\n--- Saved Slots (%s) ---\n\n", ext);
 
-    if (!valid_slots[slot]) {
-        printf("Selected slot is empty or corrupted.\n");
-        return;
-    }
+        for (i = 1; i <= 4; i++) {
+            sprintf(filename, "src/save_slot%d%s", i, ext);
+            fp = fopen(filename, (format_choice == 1) ? "r" : "rb");
 
-    sprintf(filename, "save_slot%d%s", slot, ext);
-    if (load_game(&currentGameState, filename)) {
-        printf("\nGame loaded successfully!\n");
-        printf("  Slot %d\n", slot);
-        printf("  Location: %s\n\n", get_location_name(currentGameState.location));
+            if (fp) {
+                if (load_game(&temp, filename)) {
+                    printf("Slot %d: %s\n", i, get_location_name(temp.location));
+                    valid_slots[i] = 1;
+                    found_any = 1;
+                } else {
+                    printf("Slot %d: [Corrupted Save]\n", i);
+                }
+                fclose(fp);
+            } else {
+                printf("Slot %d: [Empty]\n", i);
+            }
+        }
 
-        resume_from_loaded_state(); 
-    } else {
-        printf("Failed to load save file.\n");
+        if (!found_any) {
+            printf("\nNo save files found for %s format.\n", ext);
+
+            while (1) {
+                printf("Would you like to try a different format?\n");
+                printf("1. Yes\n");
+                printf("2. No (Return to main menu)\n");
+                retry = get_int_input("Enter choice: ");
+                if (retry == 1) {
+                    break;  /* Retry file format selection */
+                } else if (retry == 2) {
+                    return 0;
+                } else {
+                    printf("Invalid input. Please choose 1 or 2.\n");
+                }
+            }
+            continue;
+        }
+
+        printf("\n----------------------\n");
+        slot = get_int_input("Enter slot number to load (1–4): ");
+
+        if (slot < 1 || slot > 4) {
+            printf("Invalid slot number. Returning to main menu.\n");
+            return 0;
+        }
+
+        if (!valid_slots[slot]) {
+            printf("Selected slot is empty or corrupted. \n");
+            return 0;
+        }
+
+        sprintf(filename, "src/save_slot%d%s", slot, ext);
+        if (load_game(&currentGameState, filename)) {
+            printf("\nGame loaded successfully!\n");
+            printf("  Slot %d\n", slot);
+            printf("  Location: %s\n\n", get_location_name(currentGameState.location));
+            resume_from_loaded_state();
+            return 1;
+        } else {
+            printf("Failed to load save file. Returning to main menu.\n");
+            return 0;
+        }
     }
 }
