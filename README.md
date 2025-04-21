@@ -59,6 +59,5 @@ gcc -Wall -Werror -ansi -pedantic src/main.c src/player.c src/exploration.c src/
 
 - The game is played entirely in the terminal/command prompt.
 - Follow on-screen instructions for controls and choices.
-- Save/load features may require the game to be run from the same directory.
 
 ## Enjoy your adventure!
