@@ -62,4 +62,5 @@ static void start_game(void) {
 int main(void) {
     reset_player_state();
     start_game();
+    return 0;
 }
