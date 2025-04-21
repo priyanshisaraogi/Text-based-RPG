@@ -43,6 +43,7 @@ void gain_exp(Player *player, int exp_gain) {
     while (player->exp >= player->level * 100) {
         int threshold = player->level * 100;
         player->exp -= threshold;
+        printf("Deducted %d EXP for leveling up.\n", threshold);
         player->level++; 
         player->health = BASE_HEALTH + ((player->level - 1) * (BASE_HEALTH / 2));
         player->attack += player->attack / 2;
