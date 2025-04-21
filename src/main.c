@@ -62,6 +62,4 @@ static void start_game(void) {
 int main(void) {
     reset_player_state();
     start_game();
-    print_pause("\nThank you for playing!\n");
-    return 0;
 }

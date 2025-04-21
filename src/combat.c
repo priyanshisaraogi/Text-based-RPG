@@ -255,4 +255,6 @@ void ending_scene(void)
     print_pause("The dark magic that once plagued the kingdom is lifted, and the skies clear.");
     print_pause("You have saved Yharnam from the clutches of darkness!");
     print_pause("Light returns to the kingdom, and years later, your legend is forever engraved in the annals of history.");
+    print_pause("\nThank you for playing!\n");
+    exit(0);
 }
